@@ -2,6 +2,11 @@
 
 import fileinput
 
+global N
+global ans
+global exp
+global parantheses
+
 def calc(lhs, sign, rhs) -> int:
     if sign == '+':
         return lhs + rhs
@@ -10,85 +15,58 @@ def calc(lhs, sign, rhs) -> int:
     elif sign == '*':
         return lhs * rhs
 
-def main():
-    N=0
-    exp = []
-    numbers = []
-    signs = []
-    ans = 0
-    stdin = fileinput.input()
-    N= int(stdin.readline())
-    exp = list(stdin.readline().strip())
-    if N < 1 or N > 19 or N % 2 == 0:
-        return -1
-    elif len(exp) != N:
-        return -1
-
-    for i in range(0, N):
-        if i == 0:
-            ans = int(exp[i])
-        elif i % 2 == 0:
-            numbers.append(int(exp[i]))
-        else:
-            signs.append(exp[i])
-    # print(numbers)
-    # print(signs)
-    # print(ans)
+def cal_exp(exp) -> int:
+    st = []
     i = 0
-    while i < (N-1)/2 - 1:
-        if signs[i+1] == '-':
-            if i+2 < (N-1)/2:
-                if signs[i+2] == '-':
-                    first =  calc(ans, signs[i], numbers[i]) - (numbers[i+1] - numbers[i+2])
-                    second = calc(ans, signs[i], (numbers[i] - numbers[i+1])) - numbers[i+2]
-                    if first > second:
-                        ans = first
-                        # print('%s%d%s(%d%s%d)=%d'%(signs[i],numbers[i],signs[i+1],numbers[i+1],signs[i+2],numbers[i+2],ans))
-                        i += 3
-                    else:
-                        ans = calc(ans, signs[i], (numbers[i] - numbers[i+1]))
-                        # print('%s(%d%s%d)=%d'%(signs[i],numbers[i],signs[i+1],numbers[i+1],ans))
-                        i += 2
-                else:
-                    np = calc(calc(ans, signs[i], numbers[i]), signs[i+1], numbers[i+1])
-                    p = calc(ans, signs[i], calc(numbers[i], signs[i+1], numbers[i+1]))
-                    if  p < np:
-                        ans = calc(ans, signs[i], numbers[i])
-                        # print('%s%d=%d'%(signs[i],numbers[i],ans))
-                        i += 1
-                    else:
-                        ans = p
-                        # print('%s(%d%s%d)=%d'%(signs[i],numbers[i],signs[i+1],numbers[i+1],ans))
-                        i += 2
-            else: 
-                np = calc(calc(ans, signs[i], numbers[i]), signs[i+1], numbers[i+1])
-                p = calc(ans, signs[i], calc(numbers[i], signs[i+1], numbers[i+1]))
-                if  p < np:
-                    ans = calc(ans, signs[i], numbers[i])
-                    # print('%s%d=%d'%(signs[i],numbers[i],ans))
-                    i += 1
-                else:
-                    ans = p
-                    # print('%s(%d%s%d)=%d'%(signs[i],numbers[i],signs[i+1],numbers[i+1],ans))
-                    i += 2
-                    
+    global parantheses
+    while i < len(exp):
+        if parantheses[i] == 0:
+            st.append(exp[i])
+            i += 1
         else:
-            np = calc(calc(ans, signs[i], numbers[i]), signs[i+1], numbers[i+1])
-            p = calc(ans, signs[i], calc(numbers[i], signs[i+1], numbers[i+1]))
-            if  p < np:
-                ans = calc(ans, signs[i], numbers[i])
-                # print('%s%d=%d'%(signs[i],numbers[i],ans))
-                i += 1
-            else:
-                ans = p
-                # print('%s(%d%s%d)=%d'%(signs[i],numbers[i],signs[i+1],numbers[i+1],ans))
-                i += 2
-        # print(ans)
+            st.append(calc(int(exp[i]), exp[i+1], int(exp[i+2])))
+            i = i + 3
+    st.reverse()
+    while len(st) > 1:
+        l = int(st.pop())
+        sign = st.pop()
+        r = int(st.pop())
+        st.append(calc(l, sign, r))
+    return int(st[0])
+
+def max(a,b):
+    if a > b:
+        return a
+    else:
+        return b
+
+def dfs(index):
+    global ans, N, exp, parantheses
+    ans = max(ans, cal_exp(exp))
+    for i in range(index, N+1, 2):
+        if i+2 <= N:
+            if parantheses[i] == 0 and parantheses[i+2] == 0:
+                parantheses[i] = 1
+                parantheses[i+2] = 1
+                dfs(i+2)
+                parantheses[i] = 0
+                parantheses[i+2] = 0
 
 
-    while i < int((N-1)/2):
-        ans = calc(ans, signs[i], numbers[i])
-        i += 1
+
+def main():
+    global N
+    global ans
+    global exp, parantheses
+    stdin = fileinput.input()
+    N = int(stdin.readline())
+    exp = list(stdin.readline().strip())
+    ans = - 2 ** 31
+    parantheses = [0] * N
+    
+    dfs(0)
+    
+        
     print(ans)
 
 
