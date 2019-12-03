@@ -6,13 +6,11 @@ global n, m, d, castle, count
 def shoot(turn, pos):
     global castle, count, n, m, d
     for i in range(0, d):
-        y = -turn
-        x = max(pos-i, 0)
-        while x <= min(pos+i, m-1):
-            if y < -n:
+        y = n-turn
+        x = pos-i
+        while x <= min(pos+i, m-1) and y <= n-turn:
+            if y < 0 or x < 0:
                 pass
-            elif y > -turn:
-                break
             elif castle[y][x] == 1:
                 if not [y, x] in count:
                     count.append([y, x])
