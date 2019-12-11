@@ -4,6 +4,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Go compile",
+            "command": "go",
+            "args": [
+                "build",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${file}"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
             "label": "Python",
             "type": "shell",
             "command": "python",
@@ -19,9 +31,9 @@
                     "PYTHONIOENCODING": "UTF-8"
                 }
             },
-            "group": "build"
-        }, 
-        //C++ 컴파일
+            "group": "build",
+            "problemMatcher": []
+        },
         {
             "label": "save and compile for C++",
             "command": "g++",
@@ -31,18 +43,12 @@
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],
             "group": "build",
-
-            //컴파일시 에러를 편집기에 반영
-            //참고:   https://code.visualstudio.com/docs/editor/tasks#_defining-a-problem-matcher
-
             "problemMatcher": {
                 "fileLocation": [
                     "relative",
                     "${workspaceRoot}"
                 ],
                 "pattern": {
-                    // The regular expression. 
-                   //Example to match: helloWorld.c:5:3: warning: implicit declaration of function 'prinft'
                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning error):\\s+(.*)$",
                     "file": 1,
                     "line": 2,
@@ -52,7 +58,6 @@
                 }
             }
         },
-        //C 컴파일
         {
             "label": "save and compile for C",
             "command": "gcc",
@@ -62,18 +67,12 @@
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],
             "group": "build",
-
-            //컴파일시 에러를 편집기에 반영
-            //참고:   https://code.visualstudio.com/docs/editor/tasks#_defining-a-problem-matcher
-
             "problemMatcher": {
                 "fileLocation": [
                     "relative",
                     "${workspaceRoot}"
                 ],
                 "pattern": {
-                    // The regular expression. 
-                   //Example to match: helloWorld.c:5:3: warning: implicit declaration of function 'prinft'
                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning error):\\s+(.*)$",
                     "file": 1,
                     "line": 2,
@@ -83,20 +82,15 @@
                 }
             }
         },
-        // 바이너리 실행(Ubuntu)
-        // {
-        //     "label": "execute",
-        //     "command": "cd ${fileDirname} && ./${fileBasenameNoExtension}",
-        //     "group": "test"
-        // }
-        // 바이너리 실행(Windows)
         {
             "label": "execute exe file",
             "command": "cmd",
             "group": "build",
             "args": [
-                "/C", "${fileDirname}\\${fileBasenameNoExtension}"
-            ]
+                "/C",
+                "${fileDirname}\\${fileBasenameNoExtension}"
+            ],
+            "problemMatcher": []
         }
     ]
 }
