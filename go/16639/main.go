@@ -6,82 +6,126 @@ import (
 	"fmt"
 )
 
-type pair struct {
-	s, e int
-	b    bool
+type sign struct {
+	s    byte
+	prio int
 }
 
-var resmap map[pair]int
-var numbers []int
-var signs []byte
+const maxInt = int(^uint(0) >> 1)
+const minInt = ^maxInt
 
-func f(l int, s byte, r int) int {
-	switch s {
-	case '+':
-		return l + r
-	case '-':
-		return l - r
-	case '*':
+var ans int
+
+func calc(l int, s sign, r int) int {
+	if s.s == '*' {
 		return l * r
-	default:
+	}
+	if s.s == '+' {
 		return l + r
 	}
+	if s.s == '-' {
+		return l - r
+	}
+	return 0
 }
 
-func calc(s int, e int, b bool) int {
-	ret := int(^(uint(0)) >> 1)
-	if b {
-		ret = -ret
+func calcExp(numbers []int, signs []sign) int {
+	// for _, v := range signs {
+	// 	fmt.Printf("%d ", v.prio)
+	// }
+	// fmt.Printf("\n")
+	if len(numbers)-len(signs) != 1 {
+		return maxInt
 	}
-	var p pair
-	var tmp int
-	p.s = s
-	p.e = e
-	p.b = b
-	v, exist := resmap[p]
-	if exist {
-		return v
+	if len(numbers) == 1 {
+		return numbers[0]
 	}
-	if s > e {
-		return 0
+	if len(numbers) == 2 {
+		return calc(numbers[0], signs[0], numbers[1])
 	}
-	if s == e {
-		resmap[p] = numbers[s]
-		return resmap[p]
-	}
-	if e-s == 1 {
-		tmp := f(numbers[s], signs[s], numbers[e])
-		resmap[p] = tmp
-		return resmap[p]
-	}
-	for i := 0; i < e-s; i++ {
-		for j := s; j+i <= e; j++ {
-
+	maxPrio := minInt
+	maxPrioIdx := -1
+	for i, v := range signs {
+		if v.prio > maxPrio {
+			maxPrio = v.prio
+			maxPrioIdx = i
 		}
 	}
-	resmap[p] = tmp
-	return ret
+	newNumbers := make([]int, len(numbers))
+	newSigns := make([]sign, len(signs))
+	copy(newNumbers, numbers)
+	copy(newSigns, signs)
+	c := calc(numbers[maxPrioIdx], signs[maxPrioIdx], numbers[maxPrioIdx+1])
+	newNumbers = append(append(newNumbers[:maxPrioIdx], c), newNumbers[maxPrioIdx+2:]...)
+	newSigns = append(newSigns[:maxPrioIdx], newSigns[maxPrioIdx+1:]...)
+
+	return calcExp(newNumbers, newSigns)
+}
+
+func nextPerm(p []int) {
+	for i := len(p) - 1; i >= 0; i-- {
+		if i == 0 || p[i] < len(p)-i-1 {
+			p[i]++
+			return
+		}
+		p[i] = 0
+	}
+}
+
+func getPerm(orig, p []int) []int {
+	result := append([]int{}, orig...)
+	for i, v := range p {
+		result[i], result[i+v] = result[i+v], result[i]
+	}
+	return result
+}
+
+func search(numbers []int, signs []sign) {
+	if len(signs) == 0 {
+		ans = numbers[0]
+		return
+	}
+	arr := make([]int, len(signs))
+	for i := range arr {
+		arr[i] = i
+	}
+
+	for p := make([]int, len(arr)); p[0] < len(p); nextPerm(p) {
+		permutation := getPerm(arr, p)
+		for i := range permutation {
+			signs[i].prio = permutation[i]
+		}
+		tmp := calcExp(numbers, signs)
+		if tmp > ans {
+			ans = tmp
+		}
+	}
+
 }
 
 func main() {
 	var n int
-	var equation string
-
-	resmap = make(map[pair]int)
-
+	var exp string
+	var numbers []int
+	var signs []sign
+	ans = minInt
 	fmt.Scan(&n)
-	fmt.Scan(&equation)
+	fmt.Scan(&exp)
 	numbers = make([]int, (n+1)/2)
-	signs = make([]byte, (n-1)/2)
+	signs = make([]sign, (n-1)/2)
+	perm := make([]int, len(signs))
 
-	for i, c := range equation {
+	for i := 0; i < n; i++ {
 		if i%2 == 0 {
-			numbers[i/2] = int(c - '0')
+			numbers[i/2] = int(exp[i] - '0')
 		} else {
-			signs[(i-1)/2] = byte(c)
+			signs[(i-1)/2] = sign{exp[i], 0}
 		}
 	}
+	for i := range perm {
+		perm[i] = i
+	}
 
-	fmt.Printf("%d", calc(0, len(numbers)-1, true))
-
+	search(numbers, signs)
+	fmt.Printf("%d\n", ans)
 }
