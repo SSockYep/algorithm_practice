@@ -30,36 +30,27 @@ func calc(l int, s sign, r int) int {
 }
 
 func calcExp(numbers []int, signs []sign) int {
-	// for _, v := range signs {
-	// 	fmt.Printf("%d ", v.prio)
-	// }
-	// fmt.Printf("\n")
 	if len(numbers)-len(signs) != 1 {
 		return maxInt
 	}
-	if len(numbers) == 1 {
-		return numbers[0]
-	}
-	if len(numbers) == 2 {
-		return calc(numbers[0], signs[0], numbers[1])
-	}
-	maxPrio := minInt
-	maxPrioIdx := -1
-	for i, v := range signs {
-		if v.prio > maxPrio {
-			maxPrio = v.prio
-			maxPrioIdx = i
-		}
-	}
-	newNumbers := make([]int, len(numbers))
-	newSigns := make([]sign, len(signs))
-	copy(newNumbers, numbers)
-	copy(newSigns, signs)
-	c := calc(numbers[maxPrioIdx], signs[maxPrioIdx], numbers[maxPrioIdx+1])
-	newNumbers = append(append(newNumbers[:maxPrioIdx], c), newNumbers[maxPrioIdx+2:]...)
-	newSigns = append(newSigns[:maxPrioIdx], newSigns[maxPrioIdx+1:]...)
+	newNumbers := append([]int{}, numbers...)
+	newSigns := append([]sign{}, signs...)
 
-	return calcExp(newNumbers, newSigns)
+	for len(newNumbers) > 1 {
+		maxPrio := minInt
+		maxPrioIdx := minInt
+		for i, v := range newSigns {
+
+			if v.prio > maxPrio {
+				maxPrio = v.prio
+				maxPrioIdx = i
+			}
+		}
+		c := calc(newNumbers[maxPrioIdx], newSigns[maxPrioIdx], newNumbers[maxPrioIdx+1])
+		newNumbers = append(append(newNumbers[:maxPrioIdx], c), newNumbers[maxPrioIdx+2:]...)
+		newSigns = append(newSigns[:maxPrioIdx], newSigns[maxPrioIdx+1:]...)
+	}
+	return newNumbers[0]
 }
 
 func nextPerm(p []int) {

@@ -31,8 +31,6 @@ func calc(numbers []int, signs []byte) int {
 	if len(numbers) == 2 {
 		return f(numbers[0], signs[0], numbers[1])
 	}
-	// for문의 조건을 바꿔서 중복돼서 계산하는 부분을 없애야함 --> 어떻게?? --> dfs를 쓰면 될거같은데
-	// 현재 상황에서 1+2+3+4가 있는 경우 (1+2)+(3+4)를 (1+2)먼저 1회, (3+4)먼저 1회 총 2회 계산함
 	for i := 0; i < len(numbers)-1; i++ {
 		var pCalc, tmp int
 		for jj := 1; i+jj < len(numbers); jj++ {
